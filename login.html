@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Entrar | Yuri Brandão</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="data-mock.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}:root{--p:#2DB5C2;--a:#F08566;--bg:#15110D;--c:#1F1A14;--t:#F0E8D8;--m:#9A8E7C}
+body{font-family:Inter;background:var(--bg);color:var(--t);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem}
+.card{width:100%;max-width:400px;background:var(--c);border:1px solid rgba(45,181,194,.2);border-radius:20px;padding:2rem}
+h1{font-family:'Bebas Neue';font-size:2.2rem;letter-spacing:1px;margin:.5rem 0 .2rem}h1 span{color:var(--p)}
+p{color:var(--m);font-size:.9rem;margin-bottom:1.5rem}
+label{font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--m)}
+input{width:100%;margin:.4rem 0 1rem;padding:.85rem 1rem;border-radius:12px;border:1px solid #3D352B;background:#15110D;color:var(--t);font-size:1rem}
+input:focus{outline:none;border-color:var(--p)}
+button{width:100%;padding:.9rem;border:0;border-radius:50px;background:var(--p);font-weight:700;font-size:1rem;cursor:pointer}
+button:hover{background:var(--a);color:#fff}
+.back{display:block;text-align:center;margin-top:1rem;color:var(--m);font-size:.85rem;text-decoration:none}
+.err{background:rgba(240,80,80,.12);border:1px solid rgba(240,80,80,.4);color:#ff9a9a;padding:.7rem;border-radius:10px;font-size:.85rem;margin-bottom:1rem;display:none}
+.demo{background:rgba(45,181,194,.08);border:1px dashed rgba(45,181,194,.4);padding:.7rem;border-radius:10px;font-size:.8rem;color:var(--m);margin-top:1rem}
+</style>
+</head>
+<body>
+<div class="card">
+<a href="index.html" style="text-decoration:none;font-size:1.5rem">←</a>
+<h1>ÁREA DO <span>ALUNO</span></h1>
+<p>Pagou o Yuri no pessoal? Entra com o login que ele te passou.</p>
+<div class="err" id="err"></div>
+<label>Email</label><input id="email" type="email" placeholder="voce@email.com">
+<label>Senha</label><input id="senha" type="password" placeholder="••••••••">
+<button onclick="entrar()">Entrar →</button>
+<div class="demo" id="demoHint">Modo demo: use <b>demo@yuri.com / 123456</b> (aluno) ou <b>admin@yuri.com / admin</b> (Yuri)</div>
+<a class="back" href="https://wa.me/5527999585475?text=Quero+acesso+aos+treinos!" target="_blank">Ainda não tem acesso? Chama no WhatsApp</a>
+</div>
+<script>
+if (!DEMO_MODE) document.getElementById('demoHint').style.display='none';
+async function entrar(){
+  const email=document.getElementById('email').value.trim(), senha=document.getElementById('senha').value;
+  const err=document.getElementById('err'); err.style.display='none';
+  if(!email||!senha){err.textContent='Preencha email e senha.';err.style.display='block';return;}
+  // --- Supabase real ---
+  if(!DEMO_MODE){
+    const {data,error}=await supa.auth.signInWithPassword({email,password:senha});
+    if(error){err.textContent='Login inválido: '+error.message;err.style.display='block';return;}
+    const {data:prof}=await supa.from('profiles').select('*').eq('id',data.user.id).single();
+    if(prof && prof.ativo===false){err.textContent='Acesso desativado. Fala com o Yuri.';err.style.display='block';return;}
+    localStorage.setItem('yuri_user',JSON.stringify({email, role:prof?.role||'aluno', nome:prof?.nome||email}));
+    location.href=(prof?.role==='admin')?'admin.html':'app.html';
+    return;
+  }
+  // --- Demo ---
+  const u=MOCK_USERS.find(x=>x.email===email&&x.senha===senha);
+  if(!u){err.textContent='Demo: use demo@yuri.com / 123456';err.style.display='block';return;}
+  localStorage.setItem('yuri_user',JSON.stringify(u));
+  location.href=(u.role==='admin')?'admin.html':'app.html';
+}
+</script>
+</body>
+</html>

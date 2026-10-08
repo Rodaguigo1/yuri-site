@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meus Treinos | Yuri Brandão</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="data-mock.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}:root{--p:#2DB5C2;--a:#F08566;--bg:#15110D;--c:#1F1A14;--c2:#2A2520;--t:#F0E8D8;--m:#9A8E7C}
+body{font-family:Inter;background:var(--bg);color:var(--t);min-height:100vh}
+.top{position:sticky;top:0;z-index:10;background:rgba(21,17,13,.95);backdrop-filter:blur(10px);border-bottom:1px solid rgba(45,181,194,.15);padding:.8rem 1rem;display:flex;justify-content:space-between;align-items:center}
+.top b{font-family:'Bebas Neue';font-size:1.4rem;letter-spacing:1px}.top b span{color:var(--p)}
+.top button{background:#2A2520;color:var(--t);border:1px solid #3D352B;padding:.5rem 1rem;border-radius:50px;cursor:pointer;font-size:.8rem}
+.wrap{max-width:1000px;margin:0 auto;padding:1.2rem 1rem 5rem}
+.tabs{display:flex;gap:.5rem;margin:1rem 0;overflow-x:auto}
+.tab{padding:.6rem 1.1rem;border-radius:50px;border:1px solid #3D352B;background:var(--c);color:var(--m);cursor:pointer;white-space:nowrap;font-weight:700;font-size:.85rem}
+.tab.on{background:var(--p);color:#15110D;border-color:var(--p)}
+.filters{display:flex;gap:.5rem;flex-wrap:wrap;margin:1rem 0}
+.filters select,.filters input{background:#15110D;border:1px solid #3D352B;color:var(--t);padding:.6rem .9rem;border-radius:12px;font-size:.9rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem}
+.card{background:var(--c);border:1px solid rgba(45,181,194,.12);border-radius:16px;padding:1.2rem}
+.card h3{font-family:'Bebas Neue';font-size:1.4rem;letter-spacing:1px}
+.tag{display:inline-block;font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;background:rgba(45,181,194,.15);color:var(--p);padding:.2rem .6rem;border-radius:50px;margin:.4rem .2rem .6rem 0}
+.tag.o{background:rgba(240,133,102,.15);color:var(--a)}
+.card p{color:var(--m);font-size:.88rem;margin-bottom:.8rem}
+.btn{width:100%;padding:.7rem;border-radius:12px;border:0;background:var(--p);font-weight:700;cursor:pointer;margin-top:.4rem}
+.btn.ghost{background:transparent;border:1px solid var(--p);color:var(--p)}
+.day{border:1px solid rgba(240,133,102,.25);border-radius:16px;margin-bottom:1rem;overflow:hidden}
+.day-h{background:linear-gradient(135deg,#2a1a12,#1f1208);padding:1rem 1.2rem;font-family:'Bebas Neue';font-size:1.3rem;letter-spacing:1px}
+.ex{display:flex;gap:.8rem;align-items:center;padding:.8rem 1.2rem;border-top:1px solid rgba(255,255,255,.06);cursor:pointer}
+.ex:hover{background:rgba(45,181,194,.06)}
+.ex-i{width:42px;height:42px;border-radius:12px;background:rgba(45,181,194,.15);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0}
+.ex b{font-size:.92rem}.ex small{color:var(--m);display:block;font-size:.78rem}
+.ex span.play{margin-left:auto;color:var(--p);font-weight:800}
+/* modal */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.8);display:none;align-items:center;justify-content:center;padding:1rem;z-index:50}
+.modal.on{display:flex}
+.modal-box{background:var(--c);border-radius:20px;max-width:600px;width:100%;max-height:90vh;overflow:auto;padding:1.5rem}
+.modal-box iframe,.modal-box video{width:100%;aspect-ratio:16/9;border-radius:12px;border:0;background:#000}
+.modal-box h2{font-family:'Bebas Neue';font-size:1.8rem;margin:.8rem 0 .2rem}
+.modal-box p{color:var(--m);font-size:.9rem;margin-bottom:.6rem;white-space:pre-line}
+.close{float:right;background:#2A2520;border:0;color:#fff;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:1.1rem}
+.builder{background:var(--c);border:1px dashed rgba(45,181,194,.4);border-radius:16px;padding:1.2rem;margin-bottom:1.2rem}
+.builder .row{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.8rem}
+.builder select{background:#15110D;border:1px solid #3D352B;color:#fff;padding:.6rem;border-radius:10px}
+</style>
+</head>
+<body>
+<div class="top"><b>YB <span>MEUS TREINOS</span></b><div><span id="who" style="font-size:.8rem;color:var(--m);margin-right:.6rem"></span><button onclick="sair()">Sair</button></div></div>
+<div class="wrap">
+<div class="tabs">
+<button class="tab on" onclick="aba('semana',this)">📅 Minha Semana</button>
+<button class="tab" onclick="aba('planos',this)">🎯 Treinos por Objetivo</button>
+<button class="tab" onclick="aba('biblio',this)">📚 Biblioteca</button>
+</div>
+
+<!-- SEMANA -->
+<div id="v-semana">
+<div class="builder">
+<b>⚙️ Montagem automática da semana</b>
+<p style="color:var(--m);font-size:.85rem">Responde e eu monto teus treinos com a biblioteca do Yuri.</p>
+<div class="row">
+<select id="b-dias"><option value="2">2x / semana</option><option value="3" selected>3x / semana</option><option value="4">4x / semana</option><option value="5">5x / semana</option><option value="6">6x / semana</option></select>
+<select id="b-obj"><option value="hipertrofia">Hipertrofia</option><option value="emagrecimento">Emagrecer</option><option value="forca">Força</option><option value="iniciante_casa">Iniciante em casa</option></select>
+<select id="b-local"><option value="academia">Academia</option><option value="casa">Casa</option></select>
+<button class="btn" style="width:auto;padding:.6rem 1.2rem" onclick="gerar()">Montar minha semana →</button>
+</div>
+</div>
+<div id="semana"></div>
+</div>
+
+<!-- PLANOS -->
+<div id="v-planos" style="display:none"><div class="grid" id="planos"></div><div id="planoDetalhe" style="margin-top:1rem"></div></div>
+
+<!-- BIBLIO -->
+<div id="v-biblio" style="display:none">
+<div class="filters">
+<input id="q" placeholder="🔍 Buscar exercício..." oninput="renderBiblio()" style="flex:1;min-width:180px">
+<select id="f-grupo" onchange="renderBiblio()"><option value="">Todos os grupos</option><option value="peito">Peito</option><option value="costas">Costas</option><option value="pernas">Pernas</option><option value="ombros">Ombros</option><option value="biceps">Bíceps</option><option value="triceps">Tríceps</option><option value="abdomen">Abdômen</option><option value="gluteos">Glúteos</option><option value="cardio">Cardio</option><option value="mobilidade">Mobilidade</option></select>
+</div>
+<div class="grid" id="biblio"></div>
+</div>
+</div>
+
+<div class="modal" id="modal" onclick="if(event.target===this)this.classList.remove('on')">
+<div class="modal-box">
+<button class="close" onclick="document.getElementById('modal').classList.remove('on')">✕</button>
+<div id="player"></div>
+<h2 id="m-nome"></h2>
+<div id="m-tags"></div>
+<p id="m-desc"></p>
+<p id="m-exec"></p>
+<div id="m-link"></div>
+</div>
+</div>
+
+<script>
+let EXS=[], PLANOS=[];
+const user=JSON.parse(localStorage.getItem('yuri_user')||'null');
+if(!user){location.href='login.html';}
+document.getElementById('who').textContent=user?.nome||user?.email||'';
+function sair(){localStorage.removeItem('yuri_user');location.href='login.html';}
+function aba(v,el){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));el.classList.add('on');['semana','planos','biblio'].forEach(k=>document.getElementById('v-'+k).style.display=(k===v?'block':'none'));}
+
+async function load(){
+  if(!DEMO_MODE){
+    const {data:ex}=await supa.from('exercicios').select('*').order('nome');
+    const {data:pl}=await supa.from('planos').select('*');
+    EXS=ex||[]; PLANOS=pl||[];
+  } else { EXS=MOCK_EXERCICIOS; PLANOS=MOCK_PLANOS; }
+  renderBiblio(); renderPlanos(); gerar();
+}
+function openEx(e){
+  document.getElementById('m-nome').textContent=e.nome;
+  document.getElementById('m-tags').innerHTML=`<span class="tag">${e.grupo}</span><span class="tag o">${e.series||3}x ${e.repeticoes||'10-12'} • desc ${e.descanso_seg||60}s</span>`;
+  document.getElementById('m-desc').textContent=e.descricao||'';
+  document.getElementById('m-exec').textContent=(e.execucao||'')+(e.erros_comuns?'\n\n⚠️ Erros comuns: '+e.erros_comuns:'');
+  const emb=ytEmbed(e.video_url), box=document.getElementById('player');
+  if(emb) box.innerHTML=`<iframe src="${emb}" allowfullscreen></iframe>`;
+  else if(isDirectVideo(e.video_url)) box.innerHTML=`<video src="${e.video_url}" controls playsinline></video>`;
+  else box.innerHTML=`<div style="aspect-ratio:16/9;background:#0E0B08;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--m)">Sem vídeo — abre a execução acima 💪</div>`;
+  document.getElementById('m-link').innerHTML=e.video_url?`<a class="btn ghost" style="display:block;text-align:center;text-decoration:none" href="${e.video_url}" target="_blank">▶ Ver no app / YouTube ↗</a>`:'';
+  document.getElementById('modal').classList.add('on');
+}
+function renderBiblio(){
+  const q=(document.getElementById('q').value||'').toLowerCase(), g=document.getElementById('f-grupo').value;
+  const list=EXS.filter(e=>(!g||e.grupo===g)&&e.nome.toLowerCase().includes(q));
+  document.getElementById('biblio').innerHTML=list.map(e=>`<div class="card"><h3>${e.nome}</h3><span class="tag">${e.grupo}</span><span class="tag o">${e.nivel}</span><p>${e.descricao||''}</p><button class="btn" onclick='openEx(${JSON.stringify(e).replace(/'/g,"&#39;")})'>Ver exercício + vídeo →</button></div>`).join('')||'<p style="color:var(--m)">Nada encontrado.</p>';
+  // rebind com data (evita escape quebrado)
+  [...document.querySelectorAll('#biblio .card')].forEach((c,i)=>{c.querySelector('button').onclick=()=>openEx(list[i]);});
+}
+function renderPlanos(){
+  document.getElementById('planos').innerHTML=PLANOS.map((p,i)=>`<div class="card"><h3>${p.nome}</h3><span class="tag">${p.objetivo}</span><span class="tag o">${p.dias_por_semana}x/sem</span><p>${p.descricao||''}</p><button class="btn ghost" onclick="verPlano(${i})">Abrir treino</button></div>`).join('');
+}
+function verPlano(i){
+  const p=PLANOS[i];
+  // demo: monta semana baseada no objetivo do plano
+  const dias=montarSemanaAuto({dias:p.dias_por_semana||3, objetivo:p.objetivo});
+  document.getElementById('planoDetalhe').innerHTML=`<h3 style="font-family:'Bebas Neue';font-size:1.6rem;margin-bottom:.6rem">${p.nome}</h3>`+diasHTML(dias);
+}
+function diasHTML(dias){
+  return dias.map(d=>`<div class="day"><div class="day-h">${d.titulo} <small style="font-family:Inter;font-size:.75rem;color:var(--a)">• ${d.foco}</small></div>`+d.exercicios.map(e=>`<div class="ex" onclick='openExById("${e.id}")'><div class="ex-i">💪</div><div><b>${e.nome}</b><small>${e.series}x ${e.repeticoes} • desc ${e.descanso_seg}s ${e.video_url?'• 🎬 com vídeo':''}</small></div><span class="play">▶</span></div>`).join('')+`</div>`).join('');
+}
+function openExById(id){const e=EXS.find(x=>String(x.id)===String(id));if(e)openEx(e);}
+function gerar(){
+  // usa mock pra montar; se Supabase tiver exercícios, injeta eles na montagem
+  if(!DEMO_MODE && EXS.length){ const old=MOCK_EXERCICIOS.slice(); MOCK_EXERCICIOS.length=0; EXS.forEach(e=>MOCK_EXERCICIOS.push(e)); }
+  const dias=montarSemanaAuto({dias:+document.getElementById('b-dias').value, objetivo:document.getElementById('b-obj').value, local:document.getElementById('b-local').value});
+  document.getElementById('semana').innerHTML=diasHTML(dias);
+  // salva ficha (supabase real, ignora erro no demo)
+  if(!DEMO_MODE) supa.from('fichas').insert({aluno_id:(JSON.parse(localStorage.getItem('sb_uid')||'null')), treino_json:{dias}, gerado_auto:true}).then(()=>{});
+  aba('semana',document.querySelector('.tab'));
+}
+load();
+</script>
+</body>
+</html>
