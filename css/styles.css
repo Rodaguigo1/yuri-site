@@ -103,7 +103,16 @@ h1 .hl{background:linear-gradient(135deg,var(--primary),var(--accent));-webkit-b
 .crew-banner p{font-size:1rem;max-width:600px;margin:0 auto 1.5rem;color:#E8F5EB;font-weight:500;padding:0 .5rem}
 .crew-banner .btn{background:#fff;color:#15803D;border:0;box-shadow:0 10px 20px rgba(0,0,0,.1)}
 .crew-banner .btn:hover{background:#0D1B12;color:#fff;box-shadow:0 10px 25px rgba(0,0,0,.2);transform:translateY(-3px)}
-.fire-zone{display:none}
+.fire-zone{position:absolute;left:0;right:0;bottom:0;height:100%;pointer-events:none;z-index:1;overflow:hidden}
+.ember{position:absolute;bottom:-10px;width:6px;height:6px;border-radius:50%;background:#4ADE80;box-shadow:0 0 10px #22C55E,0 0 22px rgba(34,197,94,.7);animation:rise linear infinite;opacity:0}
+.ember:nth-child(3n){background:#FACC15;box-shadow:0 0 10px #FACC15,0 0 22px rgba(250,204,21,.7)}
+.ember:nth-child(4n){width:4px;height:4px}
+@keyframes rise{
+  0%{transform:translateY(0) translateX(0);opacity:0}
+  10%{opacity:1}
+  90%{opacity:.6}
+  100%{transform:translateY(-560px) translateX(30px);opacity:0}
+}
 .crew::after{content:'';position:absolute;left:0;right:0;bottom:0;height:40%;background:radial-gradient(ellipse at 50% 100%,rgba(22,163,74,.12),transparent 60%);pointer-events:none;z-index:0}
 .crew-content{position:relative;z-index:2}
 .crew-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.25rem;margin-bottom:3rem}
@@ -196,4 +205,5 @@ footer{background:#0D1B12;padding:3rem 0 1.5rem;color:#fff}
 }
 @media(prefers-reduced-motion:reduce){
   *{animation-duration:.01ms!important;transition-duration:.01ms!important}
+  .ember{display:none}
 }
