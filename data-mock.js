@@ -81,6 +81,6 @@ function montarSemanaAuto({dias = 3, objetivo = "hipertrofia", local = "academia
       {titulo:"F - Cardio + Core", foco:"Condicionamento", ex: mount([...pick("cardio",1), ...pick("abdomen",1), ...pick("pernas",1)])},
     ],
   };
-  const dias = models[dias] || models[3];
-  return dias.map(d => ({titulo: d.titulo, foco: d.foco, exercicios: Array.isArray(d.ex[0]) ? d.ex : mount(d.ex)}));
+  const sel = models[dias] || models[3];
+  return sel.map(d => ({titulo: d.titulo, foco: d.foco, exercicios: Array.isArray(d.ex[0]) ? d.ex : mount(d.ex)}));
 }

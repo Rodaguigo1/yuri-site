@@ -1,26 +1,13 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Painel do Yuri | Admin</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
 <script src="data-mock.js"></script>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}:root{--p:#2DB5C2;--a:#F08566;--bg:#15110D;--c:#1F1A14;--t:#F0E8D8;--m:#9A8E7C}
-body{font-family:Inter;background:var(--bg);color:var(--t)}.wrap{max-width:1000px;margin:0 auto;padding:1.2rem 1rem 4rem}
-h1{font-family:'Bebas Neue';font-size:2.2rem}h1 span{color:var(--p)}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem}@media(max-width:700px){.grid{grid-template-columns:1fr}}
-.card{background:var(--c);border:1px solid rgba(45,181,194,.15);border-radius:16px;padding:1.2rem}
-.card h3{font-family:'Bebas Neue';font-size:1.3rem;margin-bottom:.6rem}
-input,select,textarea{width:100%;background:#15110D;border:1px solid #3D352B;color:#fff;padding:.65rem .8rem;border-radius:10px;margin:.3rem 0 .7rem;font-size:.9rem}
-button.btn{background:var(--p);border:0;padding:.7rem 1.2rem;border-radius:50px;font-weight:700;cursor:pointer;width:100%}
-button.ghost{background:transparent;border:1px solid var(--p);color:var(--p);padding:.4rem .8rem;border-radius:50px;cursor:pointer;font-size:.8rem}
-table{width:100%;font-size:.85rem;border-collapse:collapse}td,th{padding:.5rem;border-bottom:1px solid rgba(255,255,255,.06);text-align:left}
-.hint{font-size:.82rem;color:var(--m);background:rgba(240,133,102,.08);border:1px solid rgba(240,133,102,.3);padding:.8rem;border-radius:12px;margin:1rem 0}
-code{background:#000;padding:.1rem .4rem;border-radius:6px}
-</style>
+<link rel="stylesheet" href="css/member.css">
 </head>
 <body>
 <div class="wrap">
@@ -29,37 +16,56 @@ code{background:#000;padding:.1rem .4rem;border-radius:6px}
 <p style="color:var(--m);font-size:.9rem">Aluno pagou no pessoal? Cria o login aqui e passa pra ele.</p>
 
 <div class="hint" id="modeHint">
-<b>Como liberar acesso (2 min):</b><br>
-1. Aluno paga no pessoal/WhatsApp.<br>
-2. Aqui embaixo: preenche nome + email + senha → <b>Criar acesso</b>.<br>
-3. Passa email+senha pro aluno entrar em <code>login.html</code>.<br>
-<span id="sbHint"></span>
+<b>Como liberar acesso:</b> preenche nome + email + senha → <b>Criar acesso</b> → passa email + senha pro aluno entrar em <code>login.html</code>.<br>
+Quem parou de pagar: <b>Desativar</b> (bloqueia na hora, mantém histórico). <span id="sbHint"></span>
 </div>
 
-<div class="grid">
+<div class="tabs">
+<button class="tab on" onclick="abaA('alunos',this)">Alunos</button>
+<button class="tab" onclick="abaA('exs',this)">Exercícios</button>
+</div>
+
+<!-- ALUNOS -->
+<div id="a-alunos">
 <div class="card">
-<h3>➕ Novo acesso de aluno</h3>
-<input id="n-nome" placeholder="Nome do aluno">
-<input id="n-email" placeholder="Email (login)">
-<input id="n-wpp" placeholder="WhatsApp (opcional)">
-<input id="n-senha" placeholder="Senha (ex: nome123)">
-<button class="btn" onclick="criarAluno()">Criar acesso →</button>
+<h3>Novo acesso de aluno</h3>
+<input id="n-nome" placeholder="Nome do aluno" autocomplete="off">
+<input id="n-email" placeholder="Email (login)" type="email" autocomplete="off">
+<input id="n-wpp" placeholder="WhatsApp (opcional)" autocomplete="off">
+<input id="n-senha" placeholder="Senha (ex: nome123)" autocomplete="new-password">
+<button class="btn" id="btnCriar" onclick="criarAluno()">Criar acesso →</button>
 <p id="n-msg" style="font-size:.85rem;margin-top:.6rem"></p>
 </div>
-<div class="card">
-<h3>➕ Novo exercício (biblioteca)</h3>
-<input id="e-nome" placeholder="Nome (ex: Supino inclinado)">
-<select id="e-grupo"><option value="peito">Peito</option><option value="costas">Costas</option><option value="pernas">Pernas</option><option value="ombros">Ombros</option><option value="biceps">Bíceps</option><option value="triceps">Tríceps</option><option value="abdomen">Abdômen</option><option value="gluteos">Glúteos</option><option value="cardio">Cardio</option><option value="mobilidade">Mobilidade</option></select>
-<input id="e-video" placeholder="Link YT ou mp4 (pode colar watch, shorts, youtu.be)">
-<textarea id="e-desc" placeholder="Descrição + execução"></textarea>
-<button class="btn" onclick="criarEx()">Salvar exercício</button>
-<p id="e-msg" style="font-size:.85rem;margin-top:.6rem"></p>
+<div class="card" style="margin-top:1rem">
+<h3>Alunos (<span id="c-alunos">0</span>)</h3>
+<input id="q-aluno" placeholder="Buscar aluno..." oninput="renderAlunos()">
+<div id="alunos"></div>
 </div>
 </div>
 
+<!-- EXERCICIOS -->
+<div id="a-exs" style="display:none">
+<div class="card">
+<h3 id="ex-title">Novo exercício</h3>
+<input type="hidden" id="e-id">
+<input id="e-nome" placeholder="Nome (ex: Supino inclinado)" autocomplete="off">
+<select id="e-grupo"><option value="peito">Peito</option><option value="costas">Costas</option><option value="pernas">Pernas</option><option value="ombros">Ombros</option><option value="biceps">Bíceps</option><option value="triceps">Tríceps</option><option value="abdomen">Abdômen</option><option value="gluteos">Glúteos</option><option value="cardio">Cardio</option><option value="mobilidade">Mobilidade</option></select>
+<select id="e-nivel"><option value="todos">Nível: todos</option><option value="iniciante">Iniciante</option><option value="intermediario">Intermediário</option><option value="avancado">Avançado</option></select>
+<input id="e-video" placeholder="Link YT ou mp4 (watch, shorts, youtu.be)" autocomplete="off">
+<textarea id="e-desc" rows="2" placeholder="Resumão (pra quem já treina)"></textarea>
+<textarea id="e-exec" rows="3" placeholder="Passo a passo (pra iniciante)"></textarea>
+<input id="e-erros" placeholder="Erros comuns (opcional)" autocomplete="off">
+<div style="display:flex;gap:.5rem">
+<button class="btn" id="btnEx" style="flex:1" onclick="salvarEx()">Salvar exercício</button>
+<button class="btn ghost" id="btnCancelEx" style="display:none" onclick="cancelEx()">Cancelar</button>
+</div>
+<p id="e-msg" style="font-size:.85rem;margin-top:.6rem"></p>
+</div>
 <div class="card" style="margin-top:1rem">
-<h3>👥 Alunos / Exercícios</h3>
-<div id="listas">Carregando...</div>
+<h3>Exercícios (<span id="c-exs">0</span>)</h3>
+<input id="q-ex" placeholder="Buscar exercício..." oninput="renderExs()">
+<div id="exs"></div>
+</div>
 </div>
 </div>
 
@@ -68,43 +74,149 @@ const user=JSON.parse(localStorage.getItem('yuri_user')||'null');
 if(!user){location.href='login.html';}
 if(user.role!=='admin' && !DEMO_MODE){alert('Só admin.');location.href='app.html';}
 document.getElementById('sbHint').innerHTML=DEMO_MODE
-? '⚠️ <b>MODO DEMO:</b> configure <code>config.js</code> + rode <code>supabase-setup.sql</code> pra salvar de verdade. <a href="https://supabase.com" target="_blank" style="color:var(--p)">Criar projeto grátis →</a>'
-: '✅ Supabase conectado.';
+? 'Modo demonstração: nada salva de verdade.'
+: 'Supabase conectado.';
+let ALUNOS=[], EXS=[];
+function n(id){return document.getElementById(id).value.trim();}
+function abaA(v,el){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));el.classList.add('on');['alunos','exs'].forEach(k=>document.getElementById('a-'+k).style.display=(k===v?'block':'none'));}
+function ptErro(m){
+  if(/already registered|already exists|duplicate/i.test(m))return 'Esse email já tem cadastro.';
+  if(/invalid email/i.test(m))return 'Email inválido.';
+  if(/password/i.test(m))return 'Senha fraca: usa 6+ caracteres.';
+  return m;
+}
 
+/* ---------- ALUNOS ---------- */
 async function criarAluno(){
   const nome=n('n-nome'),email=n('n-email'),wpp=n('n-wpp'),senha=n('n-senha');
-  const msg=document.getElementById('n-msg');
+  const msg=document.getElementById('n-msg'), btn=document.getElementById('btnCriar');
   if(!email||!senha){msg.textContent='Preencha ao menos email e senha.';return;}
-  if(DEMO_MODE){MOCK_USERS.push({email,senha,nome,role:'aluno'});msg.textContent=`✅ Demo criado: ${email} / ${senha} — testa em login.html`;loadListas();return;}
-  // Supabase real: cria auth + profile (precisa "Allow new signups" ativo)
-  const {data,error}=await supa.auth.signUp({email,password:senha,options:{data:{nome}}});
-  if(error){msg.textContent='Erro: '+error.message;return;}
-  await supa.from('profiles').insert({id:data.user.id,email,nome,whatsapp:wpp,role:'aluno',ativo:true});
-  msg.textContent=`✅ Acesso criado: ${email} — passa a senha pro aluno.`;
-  loadListas();
+  btn.disabled=true;btn.textContent='Criando...';
+  try{
+    if(DEMO_MODE){MOCK_USERS.push({email,senha,nome:nome||email,role:'aluno'});msg.textContent='Criado (demo): '+email+' / '+senha;}
+    else{
+      const {data,error}=await supa.auth.signUp({email,password:senha,options:{data:{nome}}});
+      if(error)throw error;
+      const {error:e2}=await supa.from('profiles').insert({id:data.user.id,email,nome:nome||email,whatsapp:wpp||null,role:'aluno',ativo:true});
+      if(e2)throw e2;
+      msg.textContent='Acesso criado: '+email+' — passa a senha pro aluno.';
+    }
+    ['n-nome','n-email','n-wpp','n-senha'].forEach(i=>document.getElementById(i).value='');
+    await carregar();
+  }catch(err){msg.textContent='Erro: '+ptErro(err.message);}
+  btn.disabled=false;btn.textContent='Criar acesso →';
 }
-async function criarEx(){
-  const e={nome:n('e-nome'),grupo:document.getElementById('e-grupo').value,video_url:n('e-video'),descricao:n('e-desc'),nivel:'todos'};
+async function toggleAtivo(id,atual){
+  if(DEMO_MODE)return;
+  const {error}=await supa.from('profiles').update({ativo:!atual}).eq('id',id);
+  if(error){alert('Erro: '+error.message);return;}
+  await carregar();
+}
+async function excluirAluno(id,email){
+  if(!confirm('Excluir os dados de '+email+'? O login precisa ser removido em Authentication > Users.'))return;
+  if(DEMO_MODE){const i=MOCK_USERS.findIndex(u=>u.email===email);if(i>=0)MOCK_USERS.splice(i,1);await carregar();return;}
+  const {error}=await supa.from('profiles').delete().eq('id',id);
+  if(error){alert('Erro: '+error.message+'\n(Rodou o supabase-migracao-02.sql?)');return;}
+  await carregar();
+}
+async function resetSenha(email){
+  if(DEMO_MODE){alert('Demo: sem envio de email.');return;}
+  const {error}=await supa.auth.resetPasswordForEmail(email);
+  alert(error?'Erro: '+ptErro(error.message):'Link de nova senha enviado pra '+email);
+}
+function renderAlunos(){
+  const q=(document.getElementById('q-aluno').value||'').toLowerCase();
+  const list=ALUNOS.filter(a=>(a.nome||'').toLowerCase().includes(q)||(a.email||'').toLowerCase().includes(q));
+  document.getElementById('c-alunos').textContent=ALUNOS.length;
+  document.getElementById('alunos').innerHTML=list.map(a=>`
+  <div class="rowline">
+    <div style="flex:1;min-width:0"><b>${a.nome||a.email}</b><small>${a.email}${a.whatsapp?' • '+a.whatsapp:''}</small><span class="status ${a.ativo===false?'off':'on'}">${a.ativo===false?'inativo':'ativo'}</span></div>
+    <div class="rowbtns">
+      <button class="mini-btn" onclick="toggleAtivo('${a.id}',${a.ativo!==false})">${a.ativo===false?'Ativar':'Desativar'}</button>
+      <button class="mini-btn" onclick="resetSenha('${a.email}')">Nova senha</button>
+      <button class="mini-btn danger" onclick="excluirAluno('${a.id}','${a.email}')">Excluir</button>
+    </div>
+  </div>`).join('')||'<p class="mini">Nenhum aluno.</p>';
+}
+
+/* ---------- EXERCICIOS ---------- */
+async function salvarEx(){
+  const id=document.getElementById('e-id').value;
+  const e={nome:n('e-nome'),grupo:document.getElementById('e-grupo').value,nivel:document.getElementById('e-nivel').value,video_url:n('e-video'),descricao:n('e-desc'),execucao:n('e-exec'),erros_comuns:n('e-erros')};
   const msg=document.getElementById('e-msg');
   if(!e.nome){msg.textContent='Dá um nome pro exercício.';return;}
-  if(DEMO_MODE){e.id='m'+Date.now();MOCK_EXERCICIOS.push(e);msg.textContent='✅ Salvo (demo). Vê em app.html > Biblioteca.';loadListas();return;}
-  const {error}=await supa.from('exercicios').insert(e);
-  msg.textContent=error?'Erro: '+error.message:'✅ Exercício salvo! Já aparece no app do aluno.';
-  loadListas();
+  try{
+    if(DEMO_MODE){
+      if(id){Object.assign(MOCK_EXERCICIOS.find(x=>String(x.id)===String(id)),e);}
+      else{e.id='m'+Date.now();MOCK_EXERCICIOS.push(e);}
+      msg.textContent='Salvo (demo).';
+    }else if(id){
+      const {error}=await supa.from('exercicios').update(e).eq('id',id);
+      if(error)throw error;
+      msg.textContent='Exercício atualizado. Já vale no app do aluno.';
+    }else{
+      const {error}=await supa.from('exercicios').insert(e);
+      if(error)throw error;
+      msg.textContent='Exercício salvo! Já aparece no app do aluno.';
+    }
+    cancelEx();await carregar();
+  }catch(err){msg.textContent='Erro: '+err.message;}
 }
-function n(id){return document.getElementById(id).value.trim();}
-async function loadListas(){
-  let alunos=[],exs=[];
-  if(DEMO_MODE){alunos=MOCK_USERS;exs=MOCK_EXERCICIOS;}
+function editarEx(id){
+  const list=DEMO_MODE?MOCK_EXERCICIOS:EXS;
+  const e=list.find(x=>String(x.id)===String(id));if(!e)return;
+  document.getElementById('e-id').value=e.id;
+  document.getElementById('e-nome').value=e.nome||'';
+  document.getElementById('e-grupo').value=e.grupo||'peito';
+  document.getElementById('e-nivel').value=e.nivel||'todos';
+  document.getElementById('e-video').value=e.video_url||'';
+  document.getElementById('e-desc').value=e.descricao||'';
+  document.getElementById('e-exec').value=e.execucao||'';
+  document.getElementById('e-erros').value=e.erros_comuns||'';
+  document.getElementById('ex-title').textContent='Editar exercício';
+  document.getElementById('btnEx').textContent='Salvar alterações';
+  document.getElementById('btnCancelEx').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function cancelEx(){
+  document.getElementById('e-id').value='';
+  ['e-nome','e-video','e-desc','e-exec','e-erros'].forEach(i=>document.getElementById(i).value='');
+  document.getElementById('ex-title').textContent='Novo exercício';
+  document.getElementById('btnEx').textContent='Salvar exercício';
+  document.getElementById('btnCancelEx').style.display='none';
+}
+async function excluirEx(id,nome){
+  if(!confirm('Excluir "'+nome+'"?'))return;
+  try{
+    if(DEMO_MODE){const i=MOCK_EXERCICIOS.findIndex(x=>String(x.id)===String(id));MOCK_EXERCICIOS.splice(i,1);}
+    else{const {error}=await supa.from('exercicios').delete().eq('id',id);if(error)throw error;}
+    await carregar();
+  }catch(err){alert('Não deu pra excluir: '+err.message+'\n(Se ele estiver em algum plano, tire de lá primeiro.)');}
+}
+function renderExs(){
+  const q=(document.getElementById('q-ex').value||'').toLowerCase();
+  const list=EXS.filter(e=>(e.nome||'').toLowerCase().includes(q));
+  document.getElementById('c-exs').textContent=EXS.length;
+  document.getElementById('exs').innerHTML=list.slice(0,60).map(e=>`
+  <div class="rowline">
+    <div style="flex:1;min-width:0"><b>${e.nome}</b><small>${e.grupo} • ${e.nivel||'todos'}${e.video_url?' • video':''}</small></div>
+    <div class="rowbtns">
+      <button class="mini-btn" onclick="editarEx('${e.id}')">Editar</button>
+      <button class="mini-btn danger" onclick="excluirEx('${e.id}','${(e.nome||'').replace(/'/g,'')}')">Excluir</button>
+    </div>
+  </div>`).join('')||'<p class="mini">Nenhum exercício.</p>';
+}
+
+async function carregar(){
+  if(DEMO_MODE){ALUNOS=MOCK_USERS.filter(u=>u.role!=='admin');EXS=MOCK_EXERCICIOS;}
   else{
-    const a=await supa.from('profiles').select('*').order('created_at',{ascending:false}).limit(50);
-    const b=await supa.from('exercicios').select('nome,grupo').order('nome').limit(100);
-    alunos=a.data||[];exs=b.data||[];
+    const a=await supa.from('profiles').select('*').order('created_at',{ascending:false}).limit(100);
+    const b=await supa.from('exercicios').select('*').order('nome').limit(200);
+    ALUNOS=(a.data||[]);EXS=(b.data||[]);
   }
-  document.getElementById('listas').innerHTML=
-   `<b>Alunos (${alunos.length})</b><table>`+alunos.map(a=>`<tr><td>${a.nome||a.email}</td><td>${a.email}</td><td>${a.role||'aluno'}</td></tr>`).join('')+`</table><br><b>Exercícios (${exs.length})</b><table>`+exs.map(e=>`<tr><td>${e.nome}</td><td>${e.grupo}</td></tr>`).join('')+`</table>`;
+  renderAlunos();renderExs();
 }
-loadListas();
+carregar();
 </script>
 </body>
 </html>

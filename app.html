@@ -1,158 +1,328 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Meus Treinos | Yuri Brandão</title>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Meus Treinos | Yuri Brandao</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
 <script src="data-mock.js"></script>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}:root{--p:#2DB5C2;--a:#F08566;--bg:#15110D;--c:#1F1A14;--c2:#2A2520;--t:#F0E8D8;--m:#9A8E7C}
-body{font-family:Inter;background:var(--bg);color:var(--t);min-height:100vh}
-.top{position:sticky;top:0;z-index:10;background:rgba(21,17,13,.95);backdrop-filter:blur(10px);border-bottom:1px solid rgba(45,181,194,.15);padding:.8rem 1rem;display:flex;justify-content:space-between;align-items:center}
-.top b{font-family:'Bebas Neue';font-size:1.4rem;letter-spacing:1px}.top b span{color:var(--p)}
-.top button{background:#2A2520;color:var(--t);border:1px solid #3D352B;padding:.5rem 1rem;border-radius:50px;cursor:pointer;font-size:.8rem}
-.wrap{max-width:1000px;margin:0 auto;padding:1.2rem 1rem 5rem}
-.tabs{display:flex;gap:.5rem;margin:1rem 0;overflow-x:auto}
-.tab{padding:.6rem 1.1rem;border-radius:50px;border:1px solid #3D352B;background:var(--c);color:var(--m);cursor:pointer;white-space:nowrap;font-weight:700;font-size:.85rem}
-.tab.on{background:var(--p);color:#15110D;border-color:var(--p)}
-.filters{display:flex;gap:.5rem;flex-wrap:wrap;margin:1rem 0}
-.filters select,.filters input{background:#15110D;border:1px solid #3D352B;color:var(--t);padding:.6rem .9rem;border-radius:12px;font-size:.9rem}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem}
-.card{background:var(--c);border:1px solid rgba(45,181,194,.12);border-radius:16px;padding:1.2rem}
-.card h3{font-family:'Bebas Neue';font-size:1.4rem;letter-spacing:1px}
-.tag{display:inline-block;font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;background:rgba(45,181,194,.15);color:var(--p);padding:.2rem .6rem;border-radius:50px;margin:.4rem .2rem .6rem 0}
-.tag.o{background:rgba(240,133,102,.15);color:var(--a)}
-.card p{color:var(--m);font-size:.88rem;margin-bottom:.8rem}
-.btn{width:100%;padding:.7rem;border-radius:12px;border:0;background:var(--p);font-weight:700;cursor:pointer;margin-top:.4rem}
-.btn.ghost{background:transparent;border:1px solid var(--p);color:var(--p)}
-.day{border:1px solid rgba(240,133,102,.25);border-radius:16px;margin-bottom:1rem;overflow:hidden}
-.day-h{background:linear-gradient(135deg,#2a1a12,#1f1208);padding:1rem 1.2rem;font-family:'Bebas Neue';font-size:1.3rem;letter-spacing:1px}
-.ex{display:flex;gap:.8rem;align-items:center;padding:.8rem 1.2rem;border-top:1px solid rgba(255,255,255,.06);cursor:pointer}
-.ex:hover{background:rgba(45,181,194,.06)}
-.ex-i{width:42px;height:42px;border-radius:12px;background:rgba(45,181,194,.15);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0}
-.ex b{font-size:.92rem}.ex small{color:var(--m);display:block;font-size:.78rem}
-.ex span.play{margin-left:auto;color:var(--p);font-weight:800}
-/* modal */
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.8);display:none;align-items:center;justify-content:center;padding:1rem;z-index:50}
-.modal.on{display:flex}
-.modal-box{background:var(--c);border-radius:20px;max-width:600px;width:100%;max-height:90vh;overflow:auto;padding:1.5rem}
-.modal-box iframe,.modal-box video{width:100%;aspect-ratio:16/9;border-radius:12px;border:0;background:#000}
-.modal-box h2{font-family:'Bebas Neue';font-size:1.8rem;margin:.8rem 0 .2rem}
-.modal-box p{color:var(--m);font-size:.9rem;margin-bottom:.6rem;white-space:pre-line}
-.close{float:right;background:#2A2520;border:0;color:#fff;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:1.1rem}
-.builder{background:var(--c);border:1px dashed rgba(45,181,194,.4);border-radius:16px;padding:1.2rem;margin-bottom:1.2rem}
-.builder .row{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.8rem}
-.builder select{background:#15110D;border:1px solid #3D352B;color:#fff;padding:.6rem;border-radius:10px}
-</style>
+<link rel="stylesheet" href="css/member.css">
 </head>
 <body>
-<div class="top"><b>YB <span>MEUS TREINOS</span></b><div><span id="who" style="font-size:.8rem;color:var(--m);margin-right:.6rem"></span><button onclick="sair()">Sair</button></div></div>
+<div class="top"><b>YB <span>MEUS TREINOS</span></b><div style="display:flex;align-items:center;gap:.6rem"><span id="who"></span><button class="ghost" onclick="sair()">Sair</button></div></div>
 <div class="wrap">
+
 <div class="tabs">
-<button class="tab on" onclick="aba('semana',this)">📅 Minha Semana</button>
-<button class="tab" onclick="aba('planos',this)">🎯 Treinos por Objetivo</button>
-<button class="tab" onclick="aba('biblio',this)">📚 Biblioteca</button>
+<button class="tab on" onclick="aba('agenda',this)">Agenda</button>
+<button class="tab" onclick="aba('montar',this)">Montar treino</button>
+<button class="tab" onclick="aba('biblio',this)">Exercicios</button>
 </div>
 
-<!-- SEMANA -->
-<div id="v-semana">
-<div class="builder">
-<b>⚙️ Montagem automática da semana</b>
-<p style="color:var(--m);font-size:.85rem">Responde e eu monto teus treinos com a biblioteca do Yuri.</p>
-<div class="row">
-<select id="b-dias"><option value="2">2x / semana</option><option value="3" selected>3x / semana</option><option value="4">4x / semana</option><option value="5">5x / semana</option><option value="6">6x / semana</option></select>
-<select id="b-obj"><option value="hipertrofia">Hipertrofia</option><option value="emagrecimento">Emagrecer</option><option value="forca">Força</option><option value="iniciante_casa">Iniciante em casa</option></select>
-<select id="b-local"><option value="academia">Academia</option><option value="casa">Casa</option></select>
-<button class="btn" style="width:auto;padding:.6rem 1.2rem" onclick="gerar()">Montar minha semana →</button>
-</div>
+<!-- AGENDA (principal) -->
+<div id="v-agenda">
+<div class="hello" id="hello"></div>
+<div id="todayBanner"></div>
+<div class="card cal-card">
+<div class="cal-head"><button class="ghost" onclick="mudaMes(-1)">‹</button><b id="calTitulo"></b><button class="ghost" onclick="mudaMes(1)">›</button></div>
+<div class="cal-grid" id="calGrid"></div>
+<p class="mini">Dia verde = treino. Toca no dia pra ver o treino aqui embaixo.</p>
 </div>
 <div id="semana"></div>
+<div class="card" style="margin-top:1rem">
+<h3>Minha conta</h3>
+<p class="mini" id="contaEmail"></p>
+<input id="novaSenha" type="password" placeholder="Nova senha (6+ caracteres)" autocomplete="new-password">
+<button class="btn ghost" id="btnSenha" onclick="trocarSenha()">Trocar senha</button>
+<p class="mini" id="senhaMsg"></p>
+<p class="mini">Travou em algo? <a href="https://wa.me/5527999585475?text=Preciso+de+ajuda+no+app!" target="_blank" style="color:var(--pd);font-weight:700">Chamar o Yuri no WhatsApp</a></p>
+</div>
 </div>
 
-<!-- PLANOS -->
-<div id="v-planos" style="display:none"><div class="grid" id="planos"></div><div id="planoDetalhe" style="margin-top:1rem"></div></div>
+<!-- MONTAR -->
+<div id="v-montar" style="display:none">
+<div class="builder">
+<div class="b-head"><b>Monte seu treino</b><p>Responde rapidinho e a gente divide os músculos por dia pra você.</p></div>
+<div class="step"><span class="step-n">1</span><div class="step-b">
+<div class="step-t">Quais dias você vai treinar?</div>
+<div class="pills wd-pills" id="p-wds">
+<button class="pill" data-wd="0">Dom</button>
+<button class="pill on" data-wd="1">Seg</button>
+<button class="pill" data-wd="2">Ter</button>
+<button class="pill on" data-wd="3">Qua</button>
+<button class="pill" data-wd="4">Qui</button>
+<button class="pill on" data-wd="5">Sex</button>
+<button class="pill" data-wd="6">Sáb</button>
+</div>
+<p class="mini">Marca os dias. A quantidade de treinos é a quantidade de dias marcados.</p>
+</div></div>
+<div class="step"><span class="step-n">2</span><div class="step-b">
+<div class="step-t">Qual seu objetivo?</div>
+<div class="obj-grid" id="p-obj">
+<button class="obj on" data-v="iniciante_casa"><span class="obj-ico">Z</span><span class="obj-tx"><b>Começar do zero</b><small>em casa, sem aparelho</small></span><span class="obj-check">✓</span></button>
+<button class="obj" data-v="hipertrofia"><span class="obj-ico">M</span><span class="obj-tx"><b>Ganhar massa</b><small>academia, volume</small></span><span class="obj-check">✓</span></button>
+<button class="obj" data-v="emagrecimento"><span class="obj-ico">Q</span><span class="obj-tx"><b>Emagrecer</b><small>queimar + definir</small></span><span class="obj-check">✓</span></button>
+<button class="obj" data-v="forca"><span class="obj-ico">F</span><span class="obj-tx"><b>Força</b><small>carga alta</small></span><span class="obj-check">✓</span></button>
+</div>
+</div></div>
+<div class="step"><span class="step-n">3</span><div class="step-b">
+<div class="step-t">Onde vai treinar?</div>
+<div class="pills" id="p-local">
+<button class="pill on" data-v="academia">Academia</button>
+<button class="pill" data-v="casa">Casa</button>
+</div>
+</div></div>
+<div class="step"><span class="step-n">4</span><div class="step-b">
+<div class="step-t">Ou começar de um plano pronto? <small>(opcional)</small></div>
+<select id="tpl" class="tpl" onchange="usarModelo()"><option value="">Montagem automática</option></select>
+</div></div>
+<button class="btn Go" onclick="gerarAuto()">Montar automático pra mim →</button>
+<p class="mini">O automático divide os músculos por dia. Depois você ajusta abaixo: tira, adiciona e muda séries.</p>
+</div>
+<div id="draft"></div>
+<button class="btn Go" id="saveBtn" style="display:none" onclick="salvar()">Salvar na minha agenda</button>
+<div id="picker" style="display:none" class="card">
+<h3>Adicionar exercicio</h3>
+<input id="pq" placeholder="Buscar..." oninput="renderPicker()" style="margin-bottom:.5rem">
+<div class="chips" id="pchips"></div>
+<div id="plist"></div>
+<button class="btn ghost" onclick="fecharPicker()">Fechar</button>
+</div>
+</div>
 
 <!-- BIBLIO -->
 <div id="v-biblio" style="display:none">
-<div class="filters">
-<input id="q" placeholder="🔍 Buscar exercício..." oninput="renderBiblio()" style="flex:1;min-width:180px">
-<select id="f-grupo" onchange="renderBiblio()"><option value="">Todos os grupos</option><option value="peito">Peito</option><option value="costas">Costas</option><option value="pernas">Pernas</option><option value="ombros">Ombros</option><option value="biceps">Bíceps</option><option value="triceps">Tríceps</option><option value="abdomen">Abdômen</option><option value="gluteos">Glúteos</option><option value="cardio">Cardio</option><option value="mobilidade">Mobilidade</option></select>
-</div>
+<div class="filters"><input id="q" placeholder="Buscar exercicio..." oninput="renderBiblio()"></div>
+<div class="chips" id="chips"></div>
 <div class="grid" id="biblio"></div>
 </div>
 </div>
 
-<div class="modal" id="modal" onclick="if(event.target===this)this.classList.remove('on')">
-<div class="modal-box">
-<button class="close" onclick="document.getElementById('modal').classList.remove('on')">✕</button>
-<div id="player"></div>
+<div class="modal" id="modal" onclick="if(event.target===this)fecharModal()">
+<div class="modal-box" onclick="event.stopPropagation()">
+<button type="button" class="close" onclick="fecharModal()">X</button>
+<div class="player-wrap" id="playerWrap"><div id="player"></div><button class="fs-btn" id="fsBtn" onclick="telaCheia()">Tela cheia</button></div>
 <h2 id="m-nome"></h2>
 <div id="m-tags"></div>
-<p id="m-desc"></p>
-<p id="m-exec"></p>
+<div class="exp-sec"><div class="exp-t">Resumao <span>pra quem ja treina</span></div><p id="m-res"></p></div>
+<div class="exp-sec"><div class="exp-t">Passo a passo <span>pra iniciante</span></div><p id="m-passo"></p></div>
+<div class="exp-sec"><div class="exp-t">Erros comuns</div><p id="m-erro"></p></div>
+<div class="exp-sec green"><div class="exp-t">Como fazer no treino</div><p id="m-como"></p></div>
 <div id="m-link"></div>
+<button type="button" class="btn ghost" style="margin-top:.6rem" onclick="fecharModal()">Fechar</button>
 </div>
 </div>
 
 <script>
 let EXS=[], PLANOS=[];
+let sel={wds:[1,3,5], obj:'iniciante_casa', local:'academia', grupo:'', pgrupo:''};
+let agenda=null, draft=null, pickDia=-1, calRef=new Date(), diaSel=null;
+const GRUPOS=[['peito','Peito'],['costas','Costas'],['pernas','Pernas'],['ombros','Ombros'],['biceps','Biceps'],['triceps','Triceps'],['abdomen','Abdomen'],['gluteos','Gluteos'],['cardio','Cardio'],['mobilidade','Mobilidade']];
+const WD=['Dom','Seg','Ter','Qua','Qui','Sex','Sab'];
+const WD_FULL=['Domingo','Segunda','Terca','Quarta','Quinta','Sexta','Sabado'];
 const user=JSON.parse(localStorage.getItem('yuri_user')||'null');
 if(!user){location.href='login.html';}
-document.getElementById('who').textContent=user?.nome||user?.email||'';
 function sair(){localStorage.removeItem('yuri_user');location.href='login.html';}
-function aba(v,el){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));el.classList.add('on');['semana','planos','biblio'].forEach(k=>document.getElementById('v-'+k).style.display=(k===v?'block':'none'));}
+async function trocarSenha(){
+  const v=document.getElementById('novaSenha').value, msg=document.getElementById('senhaMsg');
+  if(!v||v.length<6){msg.textContent='Usa 6+ caracteres.';return;}
+  if(DEMO_MODE){msg.textContent='Demo: senha não salva de verdade.';return;}
+  const btn=document.getElementById('btnSenha');btn.disabled=true;
+  const {error}=await supa.auth.updateUser({password:v});
+  msg.textContent=error?('Erro: '+error.message):'Senha trocada!';
+  document.getElementById('novaSenha').value='';
+  btn.disabled=false;
+}
+function fecharModal(){document.getElementById('modal').classList.remove('on');if(document.fullscreenElement)document.exitFullscreen();}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')fecharModal();});
+function aba(v,el){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));el.classList.add('on');['agenda','montar','biblio'].forEach(k=>document.getElementById('v-'+k).style.display=(k===v?'block':'none'));}
+function bindPills(id,key){[...document.querySelectorAll('#'+id+' .pill, #'+id+' .obj')].forEach(b=>b.onclick=()=>{document.querySelectorAll('#'+id+' .pill, #'+id+' .obj').forEach(x=>x.classList.remove('on'));b.classList.add('on');sel[key]=isNaN(+b.dataset.v)?b.dataset.v:+b.dataset.v;});}
+bindPills('p-obj','obj');bindPills('p-local','local');
+document.querySelectorAll('#p-wds .pill').forEach(b=>b.onclick=()=>{
+  const wd=+b.dataset.wd;
+  if(sel.wds.includes(wd)){ if(sel.wds.length<=1)return; sel.wds=sel.wds.filter(x=>x!==wd); }
+  else { if(sel.wds.length>=6)return; sel.wds.push(wd); sel.wds.sort((a,b)=>a-b); }
+  syncWds();
+});
+function syncWds(){document.querySelectorAll('#p-wds .pill').forEach(b=>b.classList.toggle('on',sel.wds.includes(+b.dataset.wd)));}
 
 async function load(){
+  document.getElementById('who').textContent=(user?.nome||user?.email||'').split(' ')[0];
+  document.getElementById('contaEmail').textContent=user?.email||'';
   if(!DEMO_MODE){
-    const {data:ex}=await supa.from('exercicios').select('*').order('nome');
-    const {data:pl}=await supa.from('planos').select('*');
-    EXS=ex||[]; PLANOS=pl||[];
+    try{
+      const {data:ex}=await supa.from('exercicios').select('*').order('nome');
+      const {data:pl}=await supa.from('planos').select('*');
+      EXS=(ex&&ex.length?ex:MOCK_EXERCICIOS); PLANOS=(pl&&pl.length?pl:MOCK_PLANOS);
+    }catch(e){EXS=MOCK_EXERCICIOS;PLANOS=MOCK_PLANOS;}
+    try{
+      const uid=(await supa.auth.getUser()).data.user?.id;
+      if(uid){const {data:f}=await supa.from('fichas').select('treino_json').eq('aluno_id',uid).eq('ativo',true).order('criado_em',{ascending:false}).limit(1).single();if(f&&f.treino_json&&f.treino_json.dias)agenda=f.treino_json;}
+    }catch(e){}
   } else { EXS=MOCK_EXERCICIOS; PLANOS=MOCK_PLANOS; }
-  renderBiblio(); renderPlanos(); gerar();
+  if(!agenda){try{agenda=JSON.parse(localStorage.getItem('yuri_agenda')||'null');}catch(e){}}
+  if(!agenda||!agenda.dias){agenda=autoAgenda([1,3,5],'iniciante_casa','academia');}
+  sel.wds=(agenda.dias||[1,3,5]).slice(); syncWds();
+  document.getElementById('tpl').innerHTML='<option value="">Montagem automatica</option>'+PLANOS.map((p,i)=>`<option value="${i}">${p.nome} (${p.dias_por_semana}x)</option>`).join('');
+  renderChips();renderBiblio();renderAgenda();
+  draft=JSON.parse(JSON.stringify(agenda)); renderDraft(draft);
 }
+function grupoLabel(g){const f=GRUPOS.find(x=>x[0]===g);return f?f[1]:g;}
+function exById(id){return EXS.find(x=>String(x.id)===String(id));}
+
+/* ---------- AGENDA ---------- */
+function diasDaSemana(n){
+  if(n===2)return[1,4]; if(n===3)return[1,3,5]; if(n===4)return[1,2,4,5];
+  if(n===5)return[1,2,3,4,5]; if(n===6)return[1,2,3,4,5,6]; return[1,3,5];
+}
+function autoAgenda(wds,obj,local){
+  if(EXS.length&&typeof MOCK_EXERCICIOS!=='undefined'){MOCK_EXERCICIOS.length=0;EXS.forEach(e=>MOCK_EXERCICIOS.push(e));}
+  const n=wds.length;
+  const base=montarSemanaAuto({dias:(n===1?2:n),objetivo:obj,local:local});
+  const dias=(n===1)?base.slice(0,1):base;
+  return {dias:wds.slice(), treinos:dias.map((d,i)=>({wd:wds[i],titulo:d.titulo.replace(/^[A-F]\s*-\s*/,''),foco:d.foco,exercicios:d.exercicios}))};
+}
+function renderAgenda(){
+  const hoje=new Date(), hwd=hoje.getDay();
+  const treinoHoje=agenda.treinos.find(t=>t.wd===hwd);
+  document.getElementById('hello').innerHTML=`<div><b>Ola, ${(user?.nome||'aluno').split(' ')[0]}!</b><p>${treinoHoje?('Hoje e dia de treino: <b>'+treinoHoje.titulo+'</b>. Bora!'):'Hoje e descanso. Boa recuperacao.'}</p></div>`;
+  document.getElementById('todayBanner').innerHTML=treinoHoje?`<div class="resumo"><b>Treino de hoje (${WD_FULL[hwd]}): ${treinoHoje.titulo}</b><p>${treinoHoje.exercicios.length} exercicios • ~${treinoHoje.exercicios.length*5+10} min • ${treinoHoje.foco}</p><button class="today-btn" onclick="tocaDia(${hwd})">Ver meu treino de hoje ↓</button></div>`:`<div class="rest"><b>Hoje sem treino.</b><p>Proximo treino: ${proximoTreinoTxt(hwd)}</p></div>`;
+  renderCal();
+  document.getElementById('semana').innerHTML=agenda.treinos.map((t,i)=>{
+    const tempo=t.exercicios.length*5+10;
+    const isHoje=t.wd===hwd;
+    return `<div class="day${isHoje?' today':''}" id="day-${t.wd}"><div class="day-h">${isHoje?'<span class="today-ribbon">★ HOJE</span>':''}<span class="wd">${WD_FULL[t.wd].toUpperCase()}</span><b>${t.titulo}</b><small>${t.foco} • ${t.exercicios.length} exercicios • ~${tempo} min</small></div>`
+    +t.exercicios.map(e=>`<div class="ex" onclick='openExById("${e.id}")'><div class="ex-i">></div><div><b>${e.nome}</b><small>${e.series}x de ${e.repeticoes} • descansa ${e.descanso_seg}s${e.video_url?' • video':''}</small></div><span class="play">›</span></div>`).join('')+`</div>`;
+  }).join('');
+}
+function proximoTreinoTxt(hwd){
+  for(let k=1;k<=7;k++){const d=(hwd+k)%7;const t=agenda.treinos.find(t=>t.wd===d);if(t)return WD_FULL[d]+' — '+t.titulo;}
+  return '';
+}
+function renderCal(){
+  const y=calRef.getFullYear(), m=calRef.getMonth();
+  const MESES=['Janeiro','Fevereiro','Marco','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  document.getElementById('calTitulo').textContent=MESES[m]+' '+y;
+  const first=new Date(y,m,1).getDay(), total=new Date(y,m+1,0).getDate(), hoje=new Date();
+  let h='<div class="cal-dow">D</div><div class="cal-dow">S</div><div class="cal-dow">T</div><div class="cal-dow">Q</div><div class="cal-dow">Q</div><div class="cal-dow">S</div><div class="cal-dow">S</div>';
+  for(let i=0;i<first;i++)h+='<div></div>';
+  for(let d=1;d<=total;d++){
+    const wd=new Date(y,m,d).getDay();
+    const isT=agenda.dias.includes(wd);
+    const isH=hoje.getFullYear()===y&&hoje.getMonth()===m&&hoje.getDate()===d;
+    h+=`<button class="cal-day${isT?' t':''}${isH?' h':''}" onclick="tocaDia(${wd})">${d}</button>`;
+  }
+  document.getElementById('calGrid').innerHTML=h;
+}
+function mudaMes(d){calRef=new Date(calRef.getFullYear(),calRef.getMonth()+d,1);renderCal();}
+function tocaDia(wd){
+  const el=document.getElementById('day-'+wd);
+  if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.classList.add('flash');setTimeout(()=>el.classList.remove('flash'),1200);}
+}
+
+/* ---------- MONTAR ---------- */
+function usarModelo(){
+  const i=document.getElementById('tpl').value;
+  if(i==='')return;
+  const p=PLANOS[+i];
+  sel.obj=p.objetivo;
+  sel.wds=diasDaSemana(p.dias_por_semana||3);
+  syncWds(); syncPills(); gerarAuto();
+}
+function syncPills(){
+  document.querySelectorAll('#p-obj .obj').forEach(b=>b.classList.toggle('on',b.dataset.v===sel.obj));
+  document.querySelectorAll('#p-local .pill').forEach(b=>b.classList.toggle('on',b.dataset.v===sel.local));
+}
+function gerarAuto(){
+  if(sel.wds.length===0)return;
+  draft=autoAgenda(sel.wds,sel.obj,sel.local);
+  renderDraft(draft);
+}
+function renderDraft(d){
+  if(!d){document.getElementById('draft').innerHTML='';document.getElementById('saveBtn').style.display='none';return;}
+  document.getElementById('saveBtn').style.display='block';
+  document.getElementById('draft').innerHTML='<div class="draft-hint"><b>Seu rascunho está pronto.</b><span>Ajuste cada dia e salve no final.</span></div>'+d.treinos.map((t,di)=>{
+    return `<div class="day"><div class="day-h"><span class="wd">${WD_FULL[t.wd].toUpperCase()}</span><b>${t.titulo}</b><small>${t.foco}</small><select class="wd-sel" onchange="mudaWd(${di},+this.value)">${WD_FULL.map((n,wd)=>`<option value="${wd}"${wd===t.wd?' selected':''}>${n}</option>`).join('')}</select></div>`
+    +t.exercicios.map((e,ei)=>`<div class="ex-edit"><div style="flex:1" onclick='openExById("${e.id}")'><b>${e.nome}</b><small>toque pra ver como fazer</small></div><label>S<input type="number" min="1" max="10" value="${e.series||3}" onchange="edita(${di},${ei},'series',this.value)"></label><label>R<input type="text" value="${e.repeticoes||'10-12'}" onchange="edita(${di},${ei},'repeticoes',this.value)"></label><button class="rm" onclick="removeEx(${di},${ei})">x</button></div>`).join('')
+    +`<div style="padding:.7rem 1rem"><button class="btn ghost" onclick="abrirPicker(${di})">+ Adicionar exercicio</button></div></div>`;
+  }).join('');
+}
+function edita(di,ei,campo,valor){draft.treinos[di].exercicios[ei][campo]=(campo==='series')?Math.max(1,+valor||3):valor;}
+function mudaWd(di,wd){
+  if(draft.treinos.some((t,i)=>i!==di&&t.wd===wd)){alert('Esse dia ja tem treino. Escolha outro.');renderDraft(draft);return;}
+  draft.treinos[di].wd=wd;
+  draft.treinos.sort((a,b)=>a.wd-b.wd);
+  renderDraft(draft);
+}
+function removeEx(di,ei){draft.treinos[di].exercicios.splice(ei,1);renderDraft(draft);}
+function abrirPicker(di){pickDia=di;document.getElementById('picker').style.display='block';renderPChips();renderPicker();document.getElementById('picker').scrollIntoView({behavior:'smooth'});}
+function fecharPicker(){document.getElementById('picker').style.display='none';}
+function renderPChips(){document.getElementById('pchips').innerHTML=`<button class="chip ${!sel.pgrupo?'on':''}" onclick="setPGrupo('')">Tudo</button>`+GRUPOS.map(g=>`<button class="chip ${sel.pgrupo===g[0]?'on':''}" onclick="setPGrupo('${g[0]}')">${g[1]}</button>`).join('');}
+function setPGrupo(g){sel.pgrupo=g;renderPChips();renderPicker();}
+function renderPicker(){
+  const q=(document.getElementById('pq').value||'').toLowerCase();
+  const list=EXS.filter(e=>(!sel.pgrupo||e.grupo===sel.pgrupo)&&e.nome.toLowerCase().includes(q)).slice(0,30);
+  document.getElementById('plist').innerHTML=list.map(e=>`<div class="ex" onclick='addEx("${e.id}")'><div><b>${e.nome}</b><small>${grupoLabel(e.grupo)}${e.video_url?' • video':''}</small></div><span class="play">+</span></div>`).join('')||'<p class="mini">Nada encontrado.</p>';
+}
+function addEx(id){
+  const base=exById(id);if(!base||pickDia<0)return;
+  draft.treinos[pickDia].exercicios.push({id:base.id,nome:base.nome,grupo:base.grupo,descricao:base.descricao,execucao:base.execucao,erros_comuns:base.erros_comuns,video_url:base.video_url,series:3,repeticoes:'10-12',descanso_seg:60});
+  renderDraft(draft);fecharPicker();
+}
+async function salvar(){
+  draft.dias=draft.treinos.map(t=>t.wd).sort((a,b)=>a-b);
+  agenda=JSON.parse(JSON.stringify(draft));
+  sel.wds=agenda.dias.slice(); syncWds();
+  try{localStorage.setItem('yuri_agenda',JSON.stringify(agenda));}catch(e){}
+  if(!DEMO_MODE){
+    try{
+      const uid=(await supa.auth.getUser()).data.user?.id;
+      if(uid){await supa.from('fichas').insert({aluno_id:uid,treino_json:agenda,gerado_auto:true});}
+    }catch(e){}
+  }
+  renderAgenda();
+  aba('agenda',document.querySelector('.tab'));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ---------- BIBLIO ---------- */
+function renderChips(){document.getElementById('chips').innerHTML=`<button class="chip ${!sel.grupo?'on':''}" onclick="setGrupo('')">Tudo</button>`+GRUPOS.map(g=>`<button class="chip ${sel.grupo===g[0]?'on':''}" onclick="setGrupo('${g[0]}')">${g[1]}</button>`).join('');}
+function setGrupo(g){sel.grupo=g;renderChips();renderBiblio();}
+function renderBiblio(){
+  const q=(document.getElementById('q').value||'').toLowerCase();
+  const list=EXS.filter(e=>(!sel.grupo||e.grupo===sel.grupo)&&e.nome.toLowerCase().includes(q));
+  document.getElementById('biblio').innerHTML=list.map(e=>`<div class="card ex-card"><div class="ex-top"><span class="ex-ico">${grupoLabel(e.grupo).charAt(0)}</span><div><h3>${e.nome}</h3><span class="tag">${grupoLabel(e.grupo)}</span><span class="tag o">${e.nivel||'todos'}</span></div></div><p class="res">${e.descricao||''}</p><button class="btn">Ver como fazer + video</button></div>`).join('')||'<p class="mini">Nada encontrado.</p>';
+  [...document.querySelectorAll('#biblio .card')].forEach((c,i)=>{c.querySelector('button').onclick=(ev)=>{ev.stopPropagation();openEx(list[i]);};c.onclick=()=>openEx(list[i]);});
+}
+
+/* ---------- MODAL ---------- */
 function openEx(e){
-  document.getElementById('m-nome').textContent=e.nome;
-  document.getElementById('m-tags').innerHTML=`<span class="tag">${e.grupo}</span><span class="tag o">${e.series||3}x ${e.repeticoes||'10-12'} • desc ${e.descanso_seg||60}s</span>`;
-  document.getElementById('m-desc').textContent=e.descricao||'';
-  document.getElementById('m-exec').textContent=(e.execucao||'')+(e.erros_comuns?'\n\n⚠️ Erros comuns: '+e.erros_comuns:'');
-  const emb=ytEmbed(e.video_url), box=document.getElementById('player');
-  if(emb) box.innerHTML=`<iframe src="${emb}" allowfullscreen></iframe>`;
-  else if(isDirectVideo(e.video_url)) box.innerHTML=`<video src="${e.video_url}" controls playsinline></video>`;
-  else box.innerHTML=`<div style="aspect-ratio:16/9;background:#0E0B08;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--m)">Sem vídeo — abre a execução acima 💪</div>`;
-  document.getElementById('m-link').innerHTML=e.video_url?`<a class="btn ghost" style="display:block;text-align:center;text-decoration:none" href="${e.video_url}" target="_blank">▶ Ver no app / YouTube ↗</a>`:'';
+  const full=e.id?exById(e.id)||e:e;
+  document.getElementById('m-nome').textContent=full.nome;
+  document.getElementById('m-tags').innerHTML=`<span class="tag">${grupoLabel(full.grupo)}</span><span class="tag o">${full.nivel||'todos'}</span>${full.video_url?'<span class="tag ok">com video</span>':'<span class="tag">so explicacao</span>'}`;
+  document.getElementById('m-res').textContent=full.descricao||'-';
+  document.getElementById('m-passo').textContent=full.execucao||'Segue o video acima.';
+  document.getElementById('m-erro').textContent=full.erros_comuns||'Mantenha a postura e controle a descida.';
+  document.getElementById('m-como').textContent=`Faca ${full.series||3} series de ${full.repeticoes||'10-12'}, descansando ${full.descanso_seg||60}s.`;
+  const emb=ytEmbed(full.video_url), box=document.getElementById('player');
+  document.getElementById('fsBtn').style.display=full.video_url?'block':'none';
+  if(emb) box.innerHTML=`<iframe src="${emb}" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"></iframe>`;
+  else if(isDirectVideo(full.video_url)) box.innerHTML=`<video src="${full.video_url}" controls playsinline></video>`;
+  else box.innerHTML=`<div class="no-video">Yuri ainda nao subiu o video desse.<br>Le o passo a passo abaixo.</div>`;
+  document.getElementById('m-link').innerHTML=full.video_url?`<a class="btn ghost" style="display:block;text-align:center;text-decoration:none" href="${full.video_url}" target="_blank">Abrir video no YouTube</a>`:'';
   document.getElementById('modal').classList.add('on');
 }
-function renderBiblio(){
-  const q=(document.getElementById('q').value||'').toLowerCase(), g=document.getElementById('f-grupo').value;
-  const list=EXS.filter(e=>(!g||e.grupo===g)&&e.nome.toLowerCase().includes(q));
-  document.getElementById('biblio').innerHTML=list.map(e=>`<div class="card"><h3>${e.nome}</h3><span class="tag">${e.grupo}</span><span class="tag o">${e.nivel}</span><p>${e.descricao||''}</p><button class="btn" onclick='openEx(${JSON.stringify(e).replace(/'/g,"&#39;")})'>Ver exercício + vídeo →</button></div>`).join('')||'<p style="color:var(--m)">Nada encontrado.</p>';
-  // rebind com data (evita escape quebrado)
-  [...document.querySelectorAll('#biblio .card')].forEach((c,i)=>{c.querySelector('button').onclick=()=>openEx(list[i]);});
+function openExById(id){const e=exById(id);if(e)openEx(e);}
+function telaCheia(){
+  const w=document.getElementById('playerWrap');
+  if(document.fullscreenElement){document.exitFullscreen();}
+  else if(w.requestFullscreen){w.requestFullscreen();}
+  else{const v=document.querySelector('#player video');if(v&&v.webkitEnterFullscreen)v.webkitEnterFullscreen();}
 }
-function renderPlanos(){
-  document.getElementById('planos').innerHTML=PLANOS.map((p,i)=>`<div class="card"><h3>${p.nome}</h3><span class="tag">${p.objetivo}</span><span class="tag o">${p.dias_por_semana}x/sem</span><p>${p.descricao||''}</p><button class="btn ghost" onclick="verPlano(${i})">Abrir treino</button></div>`).join('');
-}
-function verPlano(i){
-  const p=PLANOS[i];
-  // demo: monta semana baseada no objetivo do plano
-  const dias=montarSemanaAuto({dias:p.dias_por_semana||3, objetivo:p.objetivo});
-  document.getElementById('planoDetalhe').innerHTML=`<h3 style="font-family:'Bebas Neue';font-size:1.6rem;margin-bottom:.6rem">${p.nome}</h3>`+diasHTML(dias);
-}
-function diasHTML(dias){
-  return dias.map(d=>`<div class="day"><div class="day-h">${d.titulo} <small style="font-family:Inter;font-size:.75rem;color:var(--a)">• ${d.foco}</small></div>`+d.exercicios.map(e=>`<div class="ex" onclick='openExById("${e.id}")'><div class="ex-i">💪</div><div><b>${e.nome}</b><small>${e.series}x ${e.repeticoes} • desc ${e.descanso_seg}s ${e.video_url?'• 🎬 com vídeo':''}</small></div><span class="play">▶</span></div>`).join('')+`</div>`).join('');
-}
-function openExById(id){const e=EXS.find(x=>String(x.id)===String(id));if(e)openEx(e);}
-function gerar(){
-  // usa mock pra montar; se Supabase tiver exercícios, injeta eles na montagem
-  if(!DEMO_MODE && EXS.length){ const old=MOCK_EXERCICIOS.slice(); MOCK_EXERCICIOS.length=0; EXS.forEach(e=>MOCK_EXERCICIOS.push(e)); }
-  const dias=montarSemanaAuto({dias:+document.getElementById('b-dias').value, objetivo:document.getElementById('b-obj').value, local:document.getElementById('b-local').value});
-  document.getElementById('semana').innerHTML=diasHTML(dias);
-  // salva ficha (supabase real, ignora erro no demo)
-  if(!DEMO_MODE) supa.from('fichas').insert({aluno_id:(JSON.parse(localStorage.getItem('sb_uid')||'null')), treino_json:{dias}, gerado_auto:true}).then(()=>{});
-  aba('semana',document.querySelector('.tab'));
-}
+document.addEventListener('fullscreenchange',()=>{
+  document.getElementById('playerWrap').classList.toggle('fs-on',!!document.fullscreenElement);
+  document.getElementById('fsBtn').textContent=document.fullscreenElement?'Sair da tela cheia':'Tela cheia';
+});
 load();
 </script>
 </body>
